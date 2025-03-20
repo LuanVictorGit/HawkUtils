@@ -1,10 +1,15 @@
 package me.hawkutils.utils.menus;
 
+import java.util.ArrayList;
+
+import java.util.List;
+
 import org.bukkit.Bukkit;
 
 
 import org.bukkit.Material;
 import org.bukkit.Sound;
+import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.HandlerList;
@@ -17,7 +22,9 @@ import org.bukkit.inventory.Inventory;
 import lombok.Getter;
 import lombok.Setter;
 import me.hawkutils.Core;
+import me.hawkutils.utils.API;
 import me.hawkutils.utils.InventoryAPI;
+import me.hawkutils.utils.Item;
 import me.hawkutils.utils.managers.Manager;
 
 @Getter
@@ -104,6 +111,25 @@ public class Menu implements MenuExecutor{
 		if (e.getCurrentItem() != null && e.getCurrentItem().getType() != Material.AIR) {
 			p.playSound(p.getLocation(), Sound.WOOD_CLICK, 0.5f, 10f);
 		}
+	}
+	
+	public static Item getItemStatic(ConfigurationSection section) {
+		Item item = new Item(API.getItemStack(section.getString("id")));
+		if (section.contains("name")) {
+			item.setDisplayName(section.getString("name").replace("&", "§"));
+		}
+		if (section.contains("lore")) {
+			List<String> lore = new ArrayList<String>(section.contains("lore") ? section.getStringList("lore") : new ArrayList<>());
+			lore.replaceAll(l -> l.replace("&", "§"));
+			item.setLore(lore);
+		}
+		if (section.contains("slot")) {
+			item.setSlot(section.getInt("slot")-1);
+		}
+		if (section.contains("glow") && section.getBoolean("glow")) {
+			item.setGlow();
+		}
+		return item;
 	}
 
 	@Override

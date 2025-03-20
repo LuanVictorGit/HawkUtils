@@ -1,5 +1,5 @@
 name: HawkUtils
-version: 0.1
+version: 0.2
 author: lHawk_
 main: me.hawkutils.Core
 description: dependencia para utilidades dos plugins Hawk.

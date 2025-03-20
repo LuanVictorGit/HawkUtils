@@ -1,14 +1,18 @@
 package me.hawkutils.utils;
 
+import java.lang.reflect.Field;
+
 import org.bukkit.Material;
+import org.bukkit.craftbukkit.v1_8_R3.inventory.CraftInventoryView;
 import org.bukkit.craftbukkit.v1_8_R3.entity.CraftPlayer;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
+import org.bukkit.inventory.InventoryView;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
 
 import net.minecraft.server.v1_8_R3.ChatMessage;
-import net.minecraft.server.v1_8_R3.EntityPlayer;
+import net.minecraft.server.v1_8_R3.Container;
 import net.minecraft.server.v1_8_R3.PacketPlayOutOpenWindow;
 
 public class InventoryAPI {
@@ -40,10 +44,35 @@ public class InventoryAPI {
 	}
 
 	public static void updateTitlePacket(Player p, String title) {
-		EntityPlayer ep = ((CraftPlayer)p).getHandle();
-		PacketPlayOutOpenWindow packet = new PacketPlayOutOpenWindow(ep.activeContainer.windowId, "minecraft:chest", new ChatMessage(title.replace("&", "§")), p.getOpenInventory().getTopInventory().getSize());
-		ep.playerConnection.sendPacket(packet);
-		ep.updateInventory(ep.activeContainer);
+		InventoryView openInventory = p.getOpenInventory();
+		if (openInventory == null) {
+			return; // Verifica se o jogador tem um inventário aberto
+		}
+		try {
+			// Converte o jogador e o inventário para o NMS
+			CraftInventoryView craftInventoryView = (CraftInventoryView) openInventory;
+			Container container = craftInventoryView.getHandle();
+
+			// Usa reflection para acessar o campo "windowId" do Container
+			Field windowIdField = Container.class.getDeclaredField("windowId");
+			windowIdField.setAccessible(true);
+			int windowId = (int) windowIdField.get(container);
+
+			// Cria o pacote PacketPlayOutOpenWindow com o novo título
+			PacketPlayOutOpenWindow packet = new PacketPlayOutOpenWindow(windowId, // ID da janela atual
+					"minecraft:chest", // Tipo de inventário (não altera o inventário)
+					new ChatMessage(title), // Novo título
+					openInventory.getTopInventory().getSize() // Tamanho do inventário
+			);
+
+			// Envia o pacote para o jogador
+			((CraftPlayer)p).getHandle().playerConnection.sendPacket(packet);
+
+			// Atualiza o inventário do jogador (sem reiniciar o inventário)
+			p.updateInventory();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
 	
 	public static void removeItem(Player player, ItemStack itemStack, int quantidade) {

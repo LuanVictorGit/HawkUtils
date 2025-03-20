@@ -11,7 +11,8 @@ import net.minecraft.server.v1_8_R3.ChatMessage;
 import net.minecraft.server.v1_8_R3.EntityPlayer;
 import net.minecraft.server.v1_8_R3.PacketPlayOutOpenWindow;
 
-public class InventoryAPI {
+
+public class InventoryUtils {
 
 	public static boolean hasSpace(Player p, ItemStack it) {
 		Inventory inv = p.getInventory();

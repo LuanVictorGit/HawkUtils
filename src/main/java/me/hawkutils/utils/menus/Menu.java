@@ -2,6 +2,7 @@ package me.hawkutils.utils.menus;
 
 import org.bukkit.Bukkit;
 
+
 import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
@@ -12,7 +13,6 @@ import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.event.inventory.InventoryOpenEvent;
 import org.bukkit.inventory.Inventory;
-import org.bukkit.scheduler.BukkitRunnable;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -24,7 +24,8 @@ import me.hawkutils.utils.managers.Manager;
 @Setter
 public class Menu implements MenuExecutor{
 
-	private String title;
+	private String title,
+	titleToUpdate;;
 	private Inventory inventory;
 	private boolean isRemoved = false;
 	private Boolean cancelClick = false,
@@ -40,16 +41,19 @@ public class Menu implements MenuExecutor{
 			
 			@EventHandler
 			public void click(InventoryClickEvent e) {
+				if (e.getInventory() == null || !e.getInventory().equals(inventory)) return;
 				onClick(e);
 			}
 			
 			@EventHandler
 			public void close(InventoryCloseEvent e) {
+				if (e.getInventory() == null || !e.getInventory().equals(inventory)) return;
 				onClose(e);
 			}
 			
 			@EventHandler
 			public void open(InventoryOpenEvent e) {
+				if (e.getInventory() == null || !e.getInventory().equals(inventory)) return;
 				onOpen(e);
 			}
 			
@@ -78,16 +82,8 @@ public class Menu implements MenuExecutor{
 	}
 
 	public void setTitleInventory(Player p, String title) {
-		new BukkitRunnable() {
-			@Override
-			public void run() {
-				cancel(); // cancel task before execute.
-				if (p.getOpenInventory() != null && p.getOpenInventory().getTopInventory().equals(getInventory())) {
-					InventoryAPI.updateTitlePacket(p, title);
-				}
-			}
-		}.runTaskLaterAsynchronously(Core.getInstance(), 3);
-		
+		this.titleToUpdate = title;
+		InventoryAPI.updateTitlePacket(p, titleToUpdate);
 	}
 	
 	public Menu setCancelClick(Boolean cancelClick) {

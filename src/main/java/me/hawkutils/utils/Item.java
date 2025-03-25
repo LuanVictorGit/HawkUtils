@@ -93,4 +93,8 @@ public class Item {
 		item.addUnsafeEnchantment(enchant, level);
 	}
 	
+	public void removeEnchantment(Enchantment enchant) {
+		item.removeEnchantment(enchant);
+	}
+	
 }

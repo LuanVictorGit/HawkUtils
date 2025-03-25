@@ -10,6 +10,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.configuration.ConfigurationSection;
+import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.HandlerList;
@@ -128,6 +129,15 @@ public class Menu implements MenuExecutor{
 		}
 		if (section.contains("glow") && section.getBoolean("glow")) {
 			item.setGlow();
+		}
+		if (section.contains("enchants")) {
+			for(String line : section.getStringList("enchants")) {
+				try {
+					item.addEnchantment(Enchantment.getByName(line.split(">")[0].toUpperCase()), Integer.valueOf(line.split(">")[1]));
+				} catch (Exception e) {
+					continue;
+				}
+			}
 		}
 		return item;
 	}
